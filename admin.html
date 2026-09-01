@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Multi-Language Translator - Admin Panel</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%23bc3656'/><text x='50%' y='50%' dominant-baseline='central' text-anchor='middle' fill='%23ffffff' font-size='42' font-family='sans-serif' font-weight='bold'>通訳</text></svg>">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Sakura background petals -->
+    <div class="sakura-container">
+        <div class="petal"></div>
+        <div class="petal"></div>
+        <div class="petal"></div>
+        <div class="petal"></div>
+        <div class="petal"></div>
+        <div class="petal"></div>
+        <div class="petal"></div>
+        <div class="petal"></div>
+    </div>
+
+    <!-- Warning banner for Groq API Key -->
+    <div id="apiWarningBanner" style="display: none; background: rgba(245, 158, 11, 0.15); border-bottom: 1px solid rgba(245, 158, 11, 0.3); color: #f59e0b; padding: 12px 24px; text-align: center; font-size: 14px; font-weight: 600; justify-content: center; align-items: center; gap: 8px; z-index: 100; flex-wrap: wrap;">
+        <span>⚡ Groq API active — ultra-fast translation (LLaMA 3.1). Fallback: MyMemory API.</span>
+    </div>
+
+    <header>
+        <div class="logo-container">
+            <div class="hinomaru-logo">
+                <span class="kanji-logo">通訳</span>
+            </div>
+            <div class="logo-text">Live<span>Translate</span> <small class="japan-tag">Ninomiya Co.</small></div>
+        </div>
+        
+        <div class="header-controls">
+            <div class="status-group">
+                <div class="live-indicator" id="liveIndicator">Live Streaming</div>
+                
+                <div class="status-pill">
+                    <div class="status-dot" id="statusDot"></div>
+                    <span id="statusText">Inactive</span>
+                </div>
+            </div>
+            
+            <div class="room-info-badge" id="roomInfoBadge" style="display: none; align-items: center; gap: 10px; background: rgba(188, 54, 86, 0.08); border: 1px solid rgba(188, 54, 86, 0.2); padding: 8px 14px; border-radius: 12px; font-size: 13px; font-weight: 700; color: var(--color-accent);">
+                <span>Lini: <strong id="roomNameLabel" style="color: var(--text-primary);">-</strong></span>
+                <span style="color: var(--text-muted);">|</span>
+                <span>PIN: <strong id="roomPinLabel" style="font-size:15px; color:#bc3656;">-</strong></span>
+                <span style="color: var(--text-muted);">|</span>
+                <span>👥 <strong id="listenersCountLabel">0</strong> Pekerja</span>
+            </div>
+
+            <div class="buttons-group">
+                <button class="btn btn-secondary btn-icon" id="btnGlossary" title="Kamus Istilah Pabrik (Glossary)">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                    </svg>
+                </button>
+                
+                <button class="btn btn-secondary btn-icon" id="btnHistory" title="Transcription History">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 8v4l3 3"></path>
+                        <circle cx="12" cy="12" r="10"></circle>
+                    </svg>
+                </button>
+                
+                <button class="btn btn-secondary btn-icon" id="btnSettings" title="API & Language Settings">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                    </svg>
+                </button>
+                
+                <a href="index.html" class="btn btn-secondary btn-icon" id="btnSignOut" title="Exit to Dashboard" style="text-decoration: none;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Control Dashboard (Microphone & Waveform) -->
+        <section class="control-dashboard glass" id="controlPanel">
+            <div class="action-buttons pulse-ring">
+                <button class="btn btn-primary" id="btnStart">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                    </svg>
+                    Start Listening
+                </button>
+                <button class="btn btn-danger" id="btnStop" style="display: none;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
+                    </svg>
+                    Stop
+                </button>
+            </div>
+            
+            <div class="visualizer-container">
+                <canvas id="waveform"></canvas>
+            </div>
+        </section>
+
+        <!-- Source Language Selector + Raw Transcription Area -->
+        <section class="source-panel glass" id="sourcePanel">
+            <div class="panel-header" style="display: flex; align-items: center; justify-content: space-between; gap: 16px; width: 100%;">
+                <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap; flex: 1;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <h2 class="panel-title" id="sourcePanelTitle" style="margin: 0; white-space: nowrap;">Incoming Voice</h2>
+                        <div class="lang-tag" id="sourceLangTag">JA-JP</div>
+                    </div>
+                    
+                    <!-- Source Language Selector -->
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <label for="sourceLangSelect" style="font-size:11px; color:var(--text-muted); white-space:nowrap; font-weight:700; letter-spacing:0.03em;">Source Lang:</label>
+                        <select id="sourceLangSelect" style="background:#fff; border:1.5px solid rgba(188,54,86,0.3); color:#1a1a2e; padding:5px 28px 5px 10px; border-radius:8px; font-size:12.5px; font-weight:600; cursor:pointer; outline:none; appearance:auto; box-shadow:0 1px 4px rgba(0,0,0,0.08);">
+                            <option value="ja">🇯🇵 Japanese</option>
+                            <option value="en">🇬🇧 English</option>
+                            <option value="vi">🇻🇳 Vietnamese</option>
+                            <option value="id">🇮🇩 Indonesian</option>
+                            <option value="my">🇲🇲 Burmese</option>
+                            <option value="tl">🇵🇭 Filipino</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Waving Maneki-Neko Chibi Mascot -->
+                <svg class="japan-mascot" viewBox="0 0 100 100" width="54" height="54" style="flex-shrink: 0;">
+                    <ellipse cx="50" cy="55" rx="30" ry="25" fill="#ffffff" stroke="#bc3656" stroke-width="2" />
+                    <circle cx="50" cy="35" r="22" fill="#ffffff" stroke="#bc3656" stroke-width="2" />
+                    <polygon points="32,20 42,28 30,35" fill="#bc3656" />
+                    <polygon points="68,20 58,28 70,35" fill="#bc3656" />
+                    <path d="M38,34 Q42,30 44,34" fill="none" stroke="#1F2421" stroke-width="2" stroke-linecap="round" />
+                    <path d="M62,34 Q58,30 56,34" fill="none" stroke="#1F2421" stroke-width="2" stroke-linecap="round" />
+                    <circle cx="50" cy="39" r="1.5" fill="#1F2421" />
+                    <path d="M47,42 Q50,45 53,42" fill="none" stroke="#1F2421" stroke-width="1.5" stroke-linecap="round" />
+                    <circle cx="34" cy="39" r="3" fill="#ffb7c5" opacity="0.6" />
+                    <circle cx="66" cy="39" r="3" fill="#ffb7c5" opacity="0.6" />
+                    <rect x="36" y="52" width="28" height="4" rx="2" fill="#d0104c" />
+                    <circle cx="50" cy="56" r="4.5" fill="#E29C45" stroke="#bc3656" stroke-width="1" />
+                    <g class="paw">
+                        <path d="M65,55 C72,55 78,45 74,38 C70,32 64,38 64,45 Z" fill="#ffffff" stroke="#bc3656" stroke-width="2" />
+                        <ellipse cx="69" cy="40" rx="3" ry="2" fill="#ffb7c5" />
+                    </g>
+                    <path d="M36,55 C29,55 23,48 25,41 C27,35 34,42 34,48 Z" fill="#ffffff" stroke="#bc3656" stroke-width="2" />
+                </svg>
+            </div>
+            <div class="transcript-area" id="transcriptArea">
+                <span class="transcript-placeholder">Press "Start Listening" and speak in Japanese...</span>
+            </div>
+        </section>
+
+        <!-- 5-Language Translation Panel Grid -->
+        <section class="translation-grid">
+            <!-- Language 1: Vietnam -->
+            <div class="target-card glass" id="cardLang1" data-lang="vi">
+                <div class="card-top">
+                    <div class="card-lang-container">
+                        <div class="flag-badge">
+                            <!-- Vietnam flag: red background + yellow star -->
+                            <svg width="24" height="24" viewBox="0 0 24 24">
+                                <rect width="24" height="24" fill="#DA251D"/>
+                                <polygon points="12,5.5 13.9,11.3 18.8,11.3 14.8,14.2 16.3,20 12,17.1 7.7,20 9.2,14.2 5.2,11.3 10.1,11.3" fill="#FFFF00"/>
+                            </svg>
+                        </div>
+                        <div class="card-lang" id="labelLang1">Vietnam</div>
+                    </div>
+                    <div class="card-meta-group" style="display:flex; align-items:center; gap:8px;">
+                        <div class="card-engine-tag" id="engineLang1"></div>
+                        <div class="card-lang-tag" id="tagLang1">VI-VN</div>
+                    </div>
+                    <div class="spinner" id="spinnerLang1"></div>
+                </div>
+                <div class="translation-content" id="transTextLang1">
+                    <span class="translation-placeholder">Waiting for Japanese voice...</span>
+                </div>
+                <div class="card-actions">
+                    <button class="action-icon-btn btnSpeak" data-card="Lang1" title="Listen to Voice (TTS)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                        </svg>
+                    </button>
+                    <button class="action-icon-btn btnCopy" data-card="Lang1" title="Copy Text">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Language 2: Indonesia -->
+            <div class="target-card glass" id="cardLang2" data-lang="id">
+                <div class="card-top">
+                    <div class="card-lang-container">
+                        <div class="flag-badge">
+                            <svg width="24" height="24" viewBox="0 0 24 24">
+                                <rect width="24" height="12" fill="#E70012"/>
+                                <rect y="12" width="24" height="12" fill="#FFFFFF"/>
+                            </svg>
+                        </div>
+                        <div class="card-lang" id="labelLang2">Indonesia</div>
+                    </div>
+                    <div class="card-meta-group" style="display:flex; align-items:center; gap:8px;">
+                        <div class="card-engine-tag" id="engineLang2"></div>
+                        <div class="card-lang-tag" id="tagLang2">ID-ID</div>
+                    </div>
+                    <div class="spinner" id="spinnerLang2"></div>
+                </div>
+                <div class="translation-content" id="transTextLang2">
+                    <span class="translation-placeholder">Waiting for Japanese voice...</span>
+                </div>
+                <div class="card-actions">
+                    <button class="action-icon-btn btnSpeak" data-card="Lang2" title="Listen to Voice (TTS)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                        </svg>
+                    </button>
+                    <button class="action-icon-btn btnCopy" data-card="Lang2" title="Copy Text">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Language 3: Myanmar -->
+            <div class="target-card glass" id="cardLang3" data-lang="my">
+                <div class="card-top">
+                    <div class="card-lang-container">
+                        <div class="flag-badge">
+                            <!-- Myanmar flag: yellow, green, red stripes + white star -->
+                            <svg width="24" height="24" viewBox="0 0 24 24">
+                                <rect width="24" height="8" fill="#FECB00"/>
+                                <rect y="8" width="24" height="8" fill="#34B233"/>
+                                <rect y="16" width="24" height="8" fill="#EA2839"/>
+                                <polygon points="12,3 13.5,8 18.5,8 14.5,11 16,16 12,13 8,16 9.5,11 5.5,8 10.5,8" fill="#FFFFFF"/>
+                            </svg>
+                        </div>
+                        <div class="card-lang" id="labelLang3">Myanmar</div>
+                    </div>
+                    <div class="card-meta-group" style="display:flex; align-items:center; gap:8px;">
+                        <div class="card-engine-tag" id="engineLang3"></div>
+                        <div class="card-lang-tag" id="tagLang3">MY-MM</div>
+                    </div>
+                    <div class="spinner" id="spinnerLang3"></div>
+                </div>
+                <div class="translation-content" id="transTextLang3">
+                    <span class="translation-placeholder">Waiting for Japanese voice...</span>
+                </div>
+                <div class="card-actions">
+                    <button class="action-icon-btn btnSpeak" data-card="Lang3" title="Listen to Voice (TTS)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                        </svg>
+                    </button>
+                    <button class="action-icon-btn btnCopy" data-card="Lang3" title="Copy Text">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Language 4: Philippines -->
+            <div class="target-card glass" id="cardLang4" data-lang="tl">
+                <div class="card-top">
+                    <div class="card-lang-container">
+                        <div class="flag-badge">
+                            <!-- Philippines flag: blue top, red bottom, white triangle + sun + stars -->
+                            <svg width="24" height="24" viewBox="0 0 24 24">
+                                <rect width="24" height="12" fill="#0038A8"/>
+                                <rect y="12" width="24" height="12" fill="#CE1126"/>
+                                <polygon points="0,0 11,12 0,24" fill="#FFFFFF"/>
+                                <circle cx="4.5" cy="12" r="2.2" fill="#FCD116"/>
+                                <circle cx="4.5" cy="12" r="0.8" fill="#FFFFFF"/>
+                                <polygon points="4.5,6.5 5,8 6.5,8 5.3,9 5.8,10.5 4.5,9.5 3.2,10.5 3.7,9 2.5,8 4,8" fill="#FCD116"/>
+                            </svg>
+                        </div>
+                        <div class="card-lang" id="labelLang4">Philippines</div>
+                    </div>
+                    <div class="card-meta-group" style="display:flex; align-items:center; gap:8px;">
+                        <div class="card-engine-tag" id="engineLang4"></div>
+                        <div class="card-lang-tag" id="tagLang4">TL-PH</div>
+                    </div>
+                    <div class="spinner" id="spinnerLang4"></div>
+                </div>
+                <div class="translation-content" id="transTextLang4">
+                    <span class="translation-placeholder">Waiting for Japanese voice...</span>
+                </div>
+                <div class="card-actions">
+                    <button class="action-icon-btn btnSpeak" data-card="Lang4" title="Listen to Voice (TTS)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                        </svg>
+                    </button>
+                    <button class="action-icon-btn btnCopy" data-card="Lang4" title="Copy Text">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Language 5: English/Japanese (Dynamic) -->
+            <div class="target-card glass" id="cardLang5" data-lang="en">
+                <div class="card-top">
+                    <div class="card-lang-container">
+                        <div class="flag-badge">
+                            <!-- English flag: blue, white & red Union Jack -->
+                            <svg width="24" height="24" viewBox="0 0 24 24">
+                                <rect width="24" height="24" fill="#00247D"/>
+                                <path d="M0,0 L24,24 M24,0 L0,24" stroke="#FFFFFF" stroke-width="3.5"/>
+                                <path d="M0,0 L24,24 M24,0 L0,24" stroke="#CF142B" stroke-width="2"/>
+                                <path d="M12,0 V24 M0,12 H24" stroke="#FFFFFF" stroke-width="6"/>
+                                <path d="M12,0 V24 M0,12 H24" stroke="#CF142B" stroke-width="3.5"/>
+                            </svg>
+                        </div>
+                        <div class="card-lang" id="labelLang5">English</div>
+                    </div>
+                    <div class="card-meta-group" style="display:flex; align-items:center; gap:8px;">
+                        <div class="card-engine-tag" id="engineLang5"></div>
+                        <div class="card-lang-tag" id="tagLang5">EN-US</div>
+                    </div>
+                    <div class="spinner" id="spinnerLang5"></div>
+                </div>
+                <div class="translation-content" id="transTextLang5">
+                    <span class="translation-placeholder">Waiting for Japanese voice...</span>
+                </div>
+                <div class="card-actions">
+                    <button class="action-icon-btn btnSpeak" data-card="Lang5" title="Listen to Voice (TTS)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                        </svg>
+                    </button>
+                    <button class="action-icon-btn btnCopy" data-card="Lang5" title="Copy Text">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+
+    <footer style="text-align: center; padding: 20px; font-size: 12px; color: var(--text-muted); position: relative; z-index: 10; font-family: var(--font-sans);">
+        <p>🌸 Ninomiya Co., Ltd. &nbsp;·&nbsp; Live Multi-Language Translator &nbsp;·&nbsp; Copyright by Ihsan Anafi Putra &nbsp;·&nbsp; Japanese Supported</p>
+    </footer>
+
+    <!-- Settings Modal -->
+    <div class="modal-backdrop" id="settingsModal">
+        <div class="modal-content glass">
+            <div class="modal-header">
+                <h3 class="modal-title">Application Settings</h3>
+                <button class="action-icon-btn" id="btnCloseSettings" style="width: 30px; height: 30px;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="form-group">
+                <label for="apiKey">⚡ Groq API Key</label>
+                <div class="input-with-btn" style="display:flex; gap:10px; align-items:center;">
+                    <input type="password" id="apiKey" class="form-input" placeholder="gsk_... (Your Groq API Key)" style="flex:1; margin-bottom:0;">
+                    <button class="btn btn-secondary" id="btnTestApi" style="padding: 12px 18px; font-size:13px; font-weight:600; white-space:nowrap; border-radius:12px;">Test Key</button>
+                </div>
+                <div id="testApiStatus" style="font-size:12px; font-weight:700; margin-top:6px; display:none;"></div>
+                <p class="help-text">Get a free API Key at <a href="https://console.groq.com/keys" target="_blank" style="color:#bc3656;font-weight:700;">console.groq.com</a>. Keys are stored securely in your browser's localStorage. Groq allows 30 free requests/minute.</p>
+            </div>
+
+            <div class="form-group">
+                <label for="groqModel">Groq Model</label>
+                <select id="groqModel" class="form-input">
+                    <option value="llama-3.3-70b-versatile" selected>🧠 LLaMA 3.3 70B Versatile (Best Accuracy — Recommended)</option>
+                    <option value="llama-3.1-8b-instant">⚡ LLaMA 3.1 8B Instant (Fastest)</option>
+                    <option value="gemma2-9b-it">🔮 Gemma 2 9B IT (Google, Fast)</option>
+                </select>
+            </div>
+
+
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="btnCancelSettings">Cancel</button>
+                <button class="btn btn-primary" id="btnSaveSettings">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- History Sidebar Drawer -->
+    <div class="history-drawer glass" id="historyDrawer">
+        <div class="history-header">
+            <h3>Transcription History</h3>
+            <button class="action-icon-btn" id="btnCloseHistory">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+        <div class="history-body" id="historyBody">
+            <p style="color: var(--text-muted); font-style: italic; text-align: center; margin-top: 20px;">No transcription history yet.</p>
+        </div>
+        <div class="history-footer">
+            <button class="btn btn-secondary" id="btnExportHistory" style="width: 100%; justify-content: center;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                Export History (.txt)
+            </button>
+        </div>
+    </div>
+
+    <!-- Japanese Landscape Silhouette Background -->
+    <div class="japan-landscape">
+        <svg viewBox="0 0 1440 250" width="100%" height="100%" preserveAspectRatio="none">
+            <!-- Rising Red Sun / Hinomaru (much more visible, premium gradient/soft red) -->
+            <circle cx="720" cy="180" r="110" fill="#bc3656" opacity="0.32" />
+            <!-- Mount Fuji Silhouette (distinct slate grey-green) -->
+            <path d="M420,250 L660,60 L710,110 L760,60 L1000,250 Z" fill="#4a5650" opacity="0.28" />
+            <!-- Mount Fuji Snow Cap (fully visible bright white) -->
+            <path d="M620,105 L660,60 L680,80 L710,110 L740,80 L760,60 L800,105 Z" fill="#ffffff" opacity="0.9" />
+        </svg>
+    </div>
+
+    <!-- Large Background Mascot Floating -->
+    <div class="large-bg-mascot">
+        <svg viewBox="0 0 100 100" width="100%" height="100%">
+            <!-- Body and Head with semi-opaque white fill to cover waves, and thick solid crimson borders -->
+            <ellipse cx="50" cy="55" rx="30" ry="25" fill="rgba(255, 255, 255, 0.85)" stroke="#bc3656" stroke-width="2.5" opacity="0.8" />
+            <circle cx="50" cy="35" r="22" fill="rgba(255, 255, 255, 0.85)" stroke="#bc3656" stroke-width="2.5" opacity="0.8" />
+            <!-- Inside Ears -->
+            <polygon points="32,20 42,28 30,35" fill="#bc3656" opacity="0.8" />
+            <polygon points="68,20 58,28 70,35" fill="#bc3656" opacity="0.8" />
+            <!-- Eyes (solid, clear) -->
+            <path d="M38,34 Q42,30 44,34" fill="none" stroke="#1F2421" stroke-width="2" stroke-linecap="round" opacity="0.9" />
+            <path d="M62,34 Q58,30 56,34" fill="none" stroke="#1F2421" stroke-width="2" stroke-linecap="round" opacity="0.9" />
+            <!-- Nose and mouth -->
+            <circle cx="50" cy="38" r="1.5" fill="#1F2421" opacity="0.9" />
+            <path d="M47,41 Q50,44 53,41" fill="none" stroke="#1F2421" stroke-width="1.8" stroke-linecap="round" opacity="0.9" />
+            <!-- Red Collar & Gold Bell -->
+            <rect x="36" y="52" width="28" height="4.5" rx="2.2" fill="#d0104c" opacity="0.9" />
+            <circle cx="50" cy="56.5" r="5" fill="#E29C45" stroke="#bc3656" stroke-width="1.2" opacity="0.95" />
+            <!-- Waving Paw -->
+            <g class="paw" style="transform-origin: 65px 55px; animation: paw-wave 2.5s infinite alternate ease-in-out;">
+                <path d="M65,55 C72,55 78,45 74,38 C70,32 64,38 64,45 Z" fill="rgba(255, 255, 255, 0.85)" stroke="#bc3656" stroke-width="2.5" opacity="0.8" />
+                <ellipse cx="69" cy="40" rx="3.5" ry="2.2" fill="#ffb7c5" opacity="0.9" />
+            </g>
+            <!-- Left Paw (static) -->
+            <path d="M36,55 C29,55 23,48 25,41 C27,35 34,42 34,48 Z" fill="rgba(255, 255, 255, 0.85)" stroke="#bc3656" stroke-width="2.5" opacity="0.8" />
+            <!-- Cheeks -->
+            <circle cx="34" cy="39" r="3.5" fill="#ffb7c5" opacity="0.8" />
+            <circle cx="66" cy="39" r="3.5" fill="#ffb7c5" opacity="0.8" />
+        </svg>
+    </div>
+
+    <!-- Login & Room Setup Overlay -->
+    <div class="modal-backdrop show" id="adminAuthModal" style="pointer-events: auto; opacity: 1;">
+        <div class="modal-content glass" style="max-width: 460px; padding: 40px; text-align: center;">
+            <div style="margin-bottom: 24px;">
+                <div class="hinomaru-logo" style="width: 50px; height: 50px; margin: 0 auto 12px;">
+                    <span class="kanji-logo" style="font-size: 16px;">通訳</span>
+                </div>
+                <h2 style="font-size: 24px; font-weight: 700; color: var(--color-accent);">Ninomiya Admin Access</h2>
+                <p style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">Silakan masuk untuk mengelola Lini Penerjemah</p>
+            </div>
+
+            <!-- Login View -->
+            <div id="loginView">
+                <div class="form-group" style="text-align: left;">
+                    <label for="adminPassword" style="font-weight: 600;">Password Operator</label>
+                    <input type="password" id="adminPassword" class="form-input" placeholder="Masukkan password admin..." style="text-align: center; font-size: 16px;">
+                    <p id="loginError" style="color: var(--color-danger); font-size: 12.5px; font-weight: 600; margin-top: 8px; display: none;">Password salah!</p>
+                </div>
+                <button class="btn btn-primary" id="btnLoginSubmit" style="width: 100%; justify-content: center; margin-top: 8px; padding: 14px;">
+                    Masuk Ke Panel
+                </button>
+                <a href="index.html" class="btn btn-secondary" id="btnLoginBack" style="width: 100%; justify-content: center; margin-top: 10px; padding: 12px; text-decoration: none; display: flex; align-items: center; gap: 8px; font-size: 13.5px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                    Kembali ke Beranda Utama
+                </a>
+            </div>
+
+            <!-- Room Setup View (Hidden initially) -->
+            <div id="roomSetupView" style="display: none;">
+                <div class="form-group" style="text-align: left;">
+                    <label for="newRoomName" style="font-weight: 600;">Nama Lini Produksi (Room)</label>
+                    <input type="text" id="newRoomName" class="form-input" placeholder="Contoh: Lini A, Lini B, Packing..." style="text-align: center; font-weight:600;">
+                    <p id="roomCreateError" style="color: var(--color-danger); font-size: 12.5px; font-weight: 600; margin-top: 8px; display: none;"></p>
+                </div>
+                
+                <div style="display: flex; gap: 12px; margin-top: 8px;">
+                    <button class="btn btn-secondary" id="btnRoomBack" style="flex: 1; justify-content: center; padding: 14px; display: flex; align-items: center; gap: 6px;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="19" y1="12" x2="5" y2="12"></line>
+                            <polyline points="12 19 5 12 12 5"></polyline>
+                        </svg>
+                        Kembali
+                    </button>
+                    <button class="btn btn-primary" id="btnCreateRoomSubmit" style="flex: 2; justify-content: center; padding: 14px;">
+                        Mulai Lini 🚀
+                    </button>
+                </div>
+
+                <div style="margin-top: 14px; text-align: center;">
+                    <button type="button" class="btn btn-secondary" id="btnSetupGlossary" style="width: 100%; justify-content: center; padding: 12px; gap: 8px; font-size: 13.5px; border-color: rgba(188, 54, 86, 0.3); color: var(--color-accent);">
+                        📖 Kamus Istilah Pabrik (Glossary)
+                    </button>
+                </div>
+
+                <div style="margin-top: 20px; border-top: 1px solid var(--border-glass); padding-top: 18px; text-align: left;">
+                    <h4 style="font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-secondary); margin-bottom: 12px;">Daftar Lini Aktif Saat Ini:</h4>
+                    <div id="activeRoomsContainer" style="max-height: 150px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
+                        <p style="color: var(--text-muted); font-style: italic; font-size: 13px;">Belum ada lini produksi aktif.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reusable Custom Confirmation Modal -->
+    <div class="modal-backdrop" id="exitConfirmModal" style="display: none;">
+        <div class="modal-content glass japanese-glass" style="max-width: 420px; padding: 32px; text-align: center; border: 1.5px solid rgba(188, 54, 86, 0.35);">
+            <div class="hinomaru-logo" style="width: 44px; height: 44px; margin: 0 auto 12px;">
+                <span class="kanji-logo" style="font-size: 14px;">通訳</span>
+            </div>
+            <h3 id="exitModalTitle" style="font-size: 20px; font-weight: 700; color: var(--color-accent); margin-bottom: 8px;">Konfirmasi Keluar</h3>
+            <p id="exitModalText" style="font-size: 13.5px; color: var(--text-secondary); margin-bottom: 24px; line-height: 1.5;">Apakah Anda yakin ingin keluar dan mengakhiri sesi Lini ini?</p>
+            <div style="display: flex; gap: 12px; justify-content: center;">
+                <button class="btn btn-secondary" id="btnExitCancel" style="flex: 1; padding: 12px; justify-content: center;">Batal</button>
+                <button class="btn btn-primary" id="btnExitConfirm" style="flex: 1; padding: 12px; justify-content: center; background: #bc3656; border-color: #bc3656;">Ya, Keluar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PIN Share Modal (Auto Pop-Up when Room Created) -->
+    <div class="modal-backdrop" id="pinShareModal" style="display: none;">
+        <div class="modal-content glass japanese-glass" style="max-width: 460px; padding: 36px 32px; text-align: center; border: 2px solid var(--color-accent);">
+            <div class="hinomaru-logo" style="width: 50px; height: 50px; margin: 0 auto 12px;">
+                <span class="kanji-logo" style="font-size: 16px;">通訳</span>
+            </div>
+            <h3 style="font-size: 22px; font-weight: 700; color: var(--color-accent); margin-bottom: 6px;">Lini Berhasil Dibuat! 🚀</h3>
+            <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">Salin PIN atau bagikan link direct kepada Pekerja untuk bergabung:</p>
+            
+            <div style="background: rgba(255,255,255,0.05); border: 1px solid var(--border-glass); padding: 18px; border-radius: 16px; margin-bottom: 20px;">
+                <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 4px;">NAMA LINI PRODUKSI</div>
+                <div id="shareRoomName" style="font-size: 20px; font-weight: 700; color: var(--text-primary); margin-bottom: 12px;">-</div>
+                
+                <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 4px;">PIN KEAMANAN (4-DIGIT)</div>
+                <div id="shareRoomPin" style="font-size: 38px; font-weight: 800; color: #bc3656; letter-spacing: 6px;">-</div>
+            </div>
+            
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn btn-primary" id="btnCopyPinShare" style="flex: 1; justify-content: center; padding: 12px; font-size: 13px; white-space: nowrap;">
+                        📋 Salin PIN
+                    </button>
+                    <button class="btn btn-secondary" id="btnCopyLinkShare" style="flex: 1; justify-content: center; padding: 12px; font-size: 13px; white-space: nowrap;">
+                        🔗 Salin Link Direct
+                    </button>
+                </div>
+                <button class="btn btn-primary" id="btnStartSession" style="justify-content: center; padding: 13px; width: 100%; font-size: 14.5px; font-weight: 700; background: linear-gradient(135deg, #bc3656 0%, #8b1a33 100%);">
+                    Mulai Sesi Lini 🚀
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Factory Glossary Modal -->
+    <div class="modal-backdrop" id="glossaryModal" style="display: none;">
+        <div class="modal-content glass japanese-glass" style="max-width: 540px; padding: 32px; text-align: left;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h3 style="font-size: 20px; font-weight: 700; color: var(--color-accent); margin: 0; display: flex; align-items: center; gap: 8px;">
+                    📖 Kamus Istilah Pabrik (Glossary)
+                </h3>
+                <button class="action-icon-btn" id="btnCloseGlossary">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <p style="font-size: 12.5px; color: var(--text-secondary); margin-bottom: 20px; line-height: 1.5;">
+                Istilah teknis di bawah ini disimpan di Database MySQL dan otomatis disuntikkan ke dalam sistem AI Groq untuk memastikan hasil terjemahan presisi sesuai standar Ninomiya Co.
+            </p>
+
+            <!-- Form input new term -->
+            <div style="background: rgba(255,255,255,0.05); border: 1px solid var(--border-glass); padding: 16px; border-radius: 14px; margin-bottom: 20px;">
+                <div style="font-size: 12px; font-weight: 700; color: var(--text-primary); margin-bottom: 10px;">➕ Tambah Istilah Teknis Baru</div>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <input type="text" id="newTermJp" class="form-input" placeholder="Jepang (金型)" style="flex: 1; min-width: 120px; font-size: 13px;">
+                    <input type="text" id="newTermTrans" class="form-input" placeholder="Terjemahan (Mold)" style="flex: 1; min-width: 140px; font-size: 13px;">
+                </div>
+                <div style="display: flex; gap: 8px; margin-top: 8px; align-items: center;">
+                    <select id="newTermLang" class="form-input" style="width: auto; font-size: 12px; padding: 6px 12px;">
+                        <option value="id">🇮🇩 Indonesia</option>
+                        <option value="vi">🇻🇳 Vietnam</option>
+                        <option value="my">🇲🇲 Myanmar</option>
+                        <option value="tl">🇵🇭 Filipina</option>
+                        <option value="en">🇬🇧 English</option>
+                    </select>
+                    <button class="btn btn-primary" id="btnAddGlossaryTerm" style="padding: 8px 16px; font-size: 12.5px; margin-left: auto;">
+                        Tambah
+                    </button>
+                </div>
+            </div>
+
+            <!-- List of Glossary terms -->
+            <div style="max-height: 200px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;" id="glossaryListContainer">
+                <p style="color: var(--text-muted); font-style: italic; font-size: 13px;">Memuat daftar istilah dari MySQL...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load Socket.io script served by Node server, and the admin control script -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="admin.js?v=2.1"></script>
+</body>
+</html>

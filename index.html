@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Translator — Select Role</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%23bc3656'/><text x='50%' y='50%' dominant-baseline='central' text-anchor='middle' fill='%23ffffff' font-size='42' font-family='sans-serif' font-weight='bold'>通訳</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;700;900&family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --crimson: #bc3656; --crimson-dark: #8b1a33; --navy: #0f1923;
+            --navy-mid: #16222e; --gold: #e8a838; --text-bright: #f0f4f8;
+            --text-soft: rgba(240,244,248,0.65); --glass-bg: rgba(255,255,255,0.06);
+            --glass-border: rgba(255,255,255,0.12);
+        }
+        html, body { height: 100%; overflow: hidden; font-family: 'Inter','Noto Sans JP',sans-serif; background: var(--navy); color: var(--text-bright); }
+        .bg-layer { position:fixed; inset:0; z-index:0; background: radial-gradient(ellipse 80% 60% at 50% 120%, rgba(188,54,86,0.18) 0%, transparent 70%), linear-gradient(180deg,#0f1923 0%,#16222e 50%,#1a1428 100%); }
+        .bg-shimmer { position:fixed; inset:0; z-index:0; background: linear-gradient(135deg,transparent 40%,rgba(188,54,86,0.05) 50%,transparent 60%); background-size:400% 400%; animation:shimmer 8s ease infinite; }
+        @keyframes shimmer { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
+        .japan-landscape { position:fixed; bottom:0; left:0; right:0; height:220px; z-index:1; opacity:0.55; }
+        .sakura-container { position:fixed; inset:0; z-index:2; pointer-events:none; overflow:hidden; }
+        .petal { position:absolute; width:10px; height:10px; background:radial-gradient(ellipse at 30% 30%,#ffb7c5,#e8839a); border-radius:50% 0 50% 0; opacity:0; animation:petalFall linear infinite; filter:blur(0.3px); }
+        .petal:nth-child(1)  {left:5%;  width:8px;  animation-duration:9s;  animation-delay:0s}
+        .petal:nth-child(2)  {left:15%; width:12px; animation-duration:11s; animation-delay:2s}
+        .petal:nth-child(3)  {left:28%; width:7px;  animation-duration:8s;  animation-delay:4s}
+        .petal:nth-child(4)  {left:42%; width:10px; animation-duration:13s; animation-delay:1s}
+        .petal:nth-child(5)  {left:58%; width:9px;  animation-duration:10s; animation-delay:3s}
+        .petal:nth-child(6)  {left:70%; width:11px; animation-duration:12s; animation-delay:.5s}
+        .petal:nth-child(7)  {left:82%; width:7px;  animation-duration:9s;  animation-delay:5s}
+        .petal:nth-child(8)  {left:91%; width:13px; animation-duration:14s; animation-delay:2.5s}
+        .petal:nth-child(9)  {left:33%; width:8px;  animation-duration:10s; animation-delay:6s}
+        .petal:nth-child(10) {left:75%; width:10px; animation-duration:11s; animation-delay:7s}
+        @keyframes petalFall { 0%{transform:translateY(-20px) rotate(0deg);opacity:0} 10%{opacity:.85} 90%{opacity:.6} 100%{transform:translateY(110vh) rotate(720deg) translateX(40px);opacity:0} }
+        .mascot-container { position:fixed; right:5%; bottom:180px; width:160px; height:160px; z-index:3; animation:mascotBob 3s ease-in-out infinite; opacity:0.9; }
+        @keyframes mascotBob { 0%,100%{transform:translateY(0) rotate(-1deg)} 50%{transform:translateY(-12px) rotate(1deg)} }
+        @keyframes paw-wave { 0%,100%{transform:rotate(-15deg)} 50%{transform:rotate(15deg)} }
+        .page-wrapper { position:relative; z-index:10; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; padding:32px 24px; }
+        .site-header { text-align:center; margin-bottom:48px; animation:fadeInDown .8s ease both; }
+        @keyframes fadeInDown { from{opacity:0;transform:translateY(-30px)} to{opacity:1;transform:translateY(0)} }
+        .logo-row { display:flex; align-items:center; justify-content:center; gap:18px; margin-bottom:16px; }
+        .hinomaru { width:60px; height:60px; border-radius:50%; background:#fff; display:flex; align-items:center; justify-content:center; box-shadow:0 0 0 3px rgba(188,54,86,0.4),0 8px 30px rgba(188,54,86,0.3); flex-shrink:0; }
+        .hinomaru .kanji { font-family:'Noto Sans JP',serif; font-size:22px; font-weight:900; color:var(--crimson); line-height:1; }
+        .title-text { text-align:left; }
+        .title-main { font-size:clamp(28px,4vw,46px); font-weight:800; letter-spacing:-.5px; line-height:1.1; }
+        .title-main span { color:var(--crimson); }
+        .title-sub { font-size:13px; font-weight:400; color:var(--text-soft); letter-spacing:.05em; margin-top:4px; font-family:'Noto Sans JP',sans-serif; }
+        .header-lang-row { display:flex; align-items:center; justify-content:center; gap:12px; margin-bottom:10px; }
+        .lang-pill-btn { display:inline-flex; align-items:center; gap:7px; padding:6px 14px; border-radius:20px; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.13); color:var(--text-bright); font-size:12.5px; font-weight:700; cursor:pointer; transition:all 0.25s ease; backdrop-filter:blur(10px); }
+        .lang-pill-btn:hover { background:rgba(255,255,255,0.13); border-color:var(--crimson); transform:translateY(-1px); box-shadow:0 4px 14px rgba(188,54,86,0.2); }
+        .lang-pill-btn .flag-sm { width:18px; height:18px; border-radius:50%; overflow:hidden; display:inline-flex; flex-shrink:0; box-shadow:0 1px 4px rgba(0,0,0,0.3); }
+        .lang-pill-btn .flag-sm svg { width:100%; height:100%; }
+        .tagline { font-size:15px; color:var(--text-soft); font-weight:400; font-family:'Noto Sans JP',sans-serif; }
+        .tagline em { color:var(--gold); font-style:normal; font-weight:600; }
+        .cards-row { display:flex; gap:28px; flex-wrap:wrap; justify-content:center; width:100%; max-width:780px; }
+        .role-card { flex:1; min-width:280px; max-width:360px; background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:24px; padding:44px 36px 40px; text-decoration:none; color:inherit; display:flex; flex-direction:column; align-items:center; text-align:center; cursor:pointer; position:relative; overflow:hidden; backdrop-filter:blur(18px); transition:transform .3s ease,box-shadow .3s ease,border-color .3s ease; animation:fadeInUp .8s ease both; }
+        .role-card:nth-child(1){animation-delay:.1s} .role-card:nth-child(2){animation-delay:.25s}
+        @keyframes fadeInUp { from{opacity:0;transform:translateY(40px)} to{opacity:1;transform:translateY(0)} }
+        .role-card::before { content:''; position:absolute; inset:0; border-radius:inherit; opacity:0; transition:opacity .4s ease; }
+        .role-card.admin-card::before  { background:radial-gradient(circle at 50% 0%,rgba(188,54,86,0.2),transparent 70%); }
+        .role-card.worker-card::before { background:radial-gradient(circle at 50% 0%,rgba(30,80,150,0.2),transparent 70%); }
+        .role-card:hover { transform:translateY(-8px); }
+        .role-card:hover::before { opacity:1; }
+        .role-card.admin-card:hover  { box-shadow:0 20px 60px rgba(188,54,86,0.3); border-color:rgba(188,54,86,0.5); }
+        .role-card.worker-card:hover { box-shadow:0 20px 60px rgba(30,100,200,0.25); border-color:rgba(50,120,220,0.4); }
+        .card-icon { width:80px; height:80px; border-radius:20px; display:flex; align-items:center; justify-content:center; font-size:38px; margin-bottom:24px; position:relative; z-index:1; }
+        .admin-card  .card-icon { background:linear-gradient(135deg,#bc3656,#8b1a33); box-shadow:0 8px 24px rgba(188,54,86,0.4); }
+        .worker-card .card-icon { background:linear-gradient(135deg,#1a4a8a,#0d2d5e); box-shadow:0 8px 24px rgba(26,74,138,0.4); }
+        .card-title { font-size:22px; font-weight:800; margin-bottom:10px; position:relative; z-index:1; }
+        .card-desc { font-size:13.5px; color:var(--text-soft); line-height:1.7; margin-bottom:28px; position:relative; z-index:1; font-family:'Noto Sans JP',sans-serif; }
+        .card-desc strong { color:var(--text-bright); }
+        .card-btn { margin-top: auto; display:inline-flex; align-items:center; gap:8px; padding:13px 28px; border-radius:12px; font-size:14px; font-weight:700; letter-spacing:.02em; border:none; cursor:pointer; text-decoration:none; transition:all .25s ease; position:relative; z-index:1; }
+        .admin-card  .card-btn { background:var(--crimson); color:#fff; box-shadow:0 4px 16px rgba(188,54,86,0.4); }
+        .admin-card  .card-btn:hover { background:#d44060; transform:scale(1.04); }
+        .worker-card .card-btn { background:#1a4a8a; color:#fff; box-shadow:0 4px 16px rgba(26,74,138,0.4); }
+        .worker-card .card-btn:hover { background:#2256a0; transform:scale(1.04); }
+        .card-badge { position:absolute; top:20px; right:20px; z-index:2; font-size:10px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; padding:4px 10px; border-radius:20px; }
+        .admin-card  .card-badge { background:rgba(188,54,86,0.25); color:#ffaaaa; border:1px solid rgba(188,54,86,0.3); }
+        .worker-card .card-badge { background:rgba(26,74,138,0.25); color:#aaccff; border:1px solid rgba(26,74,138,0.3); }
+        .site-footer { margin-top:40px; text-align:center; font-size:12px; color:rgba(240,244,248,0.3); letter-spacing:.05em; animation:fadeInUp .8s ease .4s both; }
+        @media (max-width: 768px) {
+            html, body {
+                height: auto;
+                overflow-y: auto;
+            }
+            .page-wrapper {
+                min-height: 100vh;
+                justify-content: flex-start;
+                padding: 32px 16px 80px;
+            }
+            .site-header {
+                margin-bottom: 24px;
+            }
+            .logo-row {
+                flex-direction: column;
+                gap: 12px;
+            }
+            .title-text {
+                text-align: center;
+            }
+            .title-main {
+                font-size: 28px;
+            }
+            .tagline {
+                font-size: 13px;
+                line-height: 1.5;
+            }
+            .cards-row {
+                flex-direction: column;
+                align-items: center;
+                gap: 20px;
+            }
+            .role-card {
+                min-width: unset;
+                width: 100%;
+                max-width: 360px;
+                padding: 30px 24px;
+            }
+            .mascot-container {
+                display: none;
+            }
+            .japan-landscape {
+                height: 120px;
+                opacity: 0.3;
+            }
+        }
+
+        /* Glassmorphic Modal Backdrop & Content */
+        .modal-backdrop {
+            position: fixed; inset: 0;
+            background: rgba(10, 15, 25, 0.85);
+            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 10000; opacity: 0; pointer-events: none;
+            transition: opacity 0.35s ease;
+        }
+        .modal-backdrop.show { opacity: 1; pointer-events: auto; }
+        .modal-content {
+            width: 90%; max-width: 500px;
+            padding: 36px; border-radius: 24px; text-align: center;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35);
+            transform: translateY(30px);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+        }
+        .modal-backdrop.show .modal-content { transform: translateY(0); }
+        .modal-btn {
+            display: flex; flex-direction: column; align-items: center; gap: 10px;
+            padding: 20px; border-radius: 16px; background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08); color: #fff; cursor: pointer;
+            transition: all 0.25s ease;
+        }
+        .modal-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+            transform: translateY(-4px);
+            border-color: rgba(188, 54, 86, 0.4);
+            box-shadow: 0 10px 20px rgba(188, 54, 86, 0.15);
+        }
+        .flag-icon-container {
+            width: 36px; height: 36px; border-radius: 50%; overflow: hidden;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            background: rgba(255,255,255,0.05);
+        }
+        .flag-icon-container svg { width: 100%; height: 100%; object-fit: cover; }
+        
+        /* Modal Back Button */
+        .modal-back-btn {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 8px 16px; border-radius: 12px; margin-top: 12px;
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text-soft); font-size: 12.5px; font-weight: 600; cursor: pointer;
+            transition: all 0.2s ease; width: 100%;
+            justify-content: center;
+        }
+        .modal-back-btn:hover { background: rgba(255,255,255,0.1); color: #fff; border-color: rgba(255,255,255,0.2); }
+    </style>
+</head>
+<body>
+    <div class="bg-layer"></div>
+    <div class="bg-shimmer"></div>
+    <div class="sakura-container">
+        <div class="petal"></div><div class="petal"></div><div class="petal"></div>
+        <div class="petal"></div><div class="petal"></div><div class="petal"></div>
+        <div class="petal"></div><div class="petal"></div><div class="petal"></div><div class="petal"></div>
+    </div>
+    <div class="japan-landscape">
+        <svg viewBox="0 0 1440 220" width="100%" height="100%" preserveAspectRatio="none">
+            <circle cx="720" cy="200" r="130" fill="#bc3656" opacity="0.28"/>
+            <path d="M360,220 L600,55 L650,100 L700,55 L940,220 Z" fill="#2a3d4f" opacity="0.5"/>
+            <path d="M560,98 L600,55 L625,78 L650,100 L675,78 L700,55 L740,98 Z" fill="#ffffff" opacity="0.85"/>
+            <path d="M0,220 L200,140 L350,220 Z" fill="#1e2f3f" opacity="0.4"/>
+            <path d="M1100,220 L1260,130 L1440,220 Z" fill="#1e2f3f" opacity="0.4"/>
+            <rect x="1050" y="130" width="80" height="6" rx="3" fill="#bc3656" opacity="0.5"/>
+            <rect x="1055" y="136" width="70" height="4" rx="2" fill="#bc3656" opacity="0.4"/>
+            <rect x="1060" y="140" width="6" height="60" rx="3" fill="#bc3656" opacity="0.4"/>
+            <rect x="1114" y="140" width="6" height="60" rx="3" fill="#bc3656" opacity="0.4"/>
+        </svg>
+    </div>
+    <div class="mascot-container">
+        <svg viewBox="0 0 100 100" width="100%" height="100%">
+            <ellipse cx="50" cy="56" rx="30" ry="25" fill="rgba(255,255,255,0.9)" stroke="#bc3656" stroke-width="2.5" opacity="0.92"/>
+            <circle cx="50" cy="35" r="22" fill="rgba(255,255,255,0.9)" stroke="#bc3656" stroke-width="2.5" opacity="0.92"/>
+            <polygon points="32,20 42,28 30,35" fill="#bc3656" opacity="0.85"/>
+            <polygon points="68,20 58,28 70,35" fill="#bc3656" opacity="0.85"/>
+            <path d="M38,34 Q42,30 44,34" fill="none" stroke="#1F2421" stroke-width="2" stroke-linecap="round"/>
+            <path d="M62,34 Q58,30 56,34" fill="none" stroke="#1F2421" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="50" cy="38" r="1.5" fill="#1F2421"/>
+            <path d="M47,41 Q50,44 53,41" fill="none" stroke="#1F2421" stroke-width="1.8" stroke-linecap="round"/>
+            <rect x="36" y="52" width="28" height="4.5" rx="2.2" fill="#d0104c" opacity="0.9"/>
+            <circle cx="50" cy="56.5" r="5" fill="#E29C45" stroke="#bc3656" stroke-width="1.2" opacity="0.95"/>
+            <g style="transform-origin:65px 55px;animation:paw-wave 2.5s infinite alternate ease-in-out;">
+                <path d="M65,55 C72,55 78,45 74,38 C70,32 64,38 64,45 Z" fill="rgba(255,255,255,0.9)" stroke="#bc3656" stroke-width="2.5"/>
+                <ellipse cx="69" cy="40" rx="3.5" ry="2.2" fill="#ffb7c5"/>
+            </g>
+            <path d="M36,55 C29,55 23,48 25,41 C27,35 34,42 34,48 Z" fill="rgba(255,255,255,0.9)" stroke="#bc3656" stroke-width="2.5"/>
+            <circle cx="34" cy="39" r="3.5" fill="#ffb7c5" opacity="0.8"/>
+            <circle cx="66" cy="39" r="3.5" fill="#ffb7c5" opacity="0.8"/>
+        </svg>
+    </div>
+    <div class="page-wrapper">
+        <header class="site-header">
+            <div class="logo-row">
+                <div class="hinomaru"><span class="kanji">通訳</span></div>
+                <div class="title-text">
+                    <div class="title-main">Live<span>Translate</span></div>
+                    <div class="title-sub">Live Translation System — Real-time Multi-language Translation</div>
+                </div>
+            </div>
+            <div class="header-lang-row">
+                <button class="lang-pill-btn" id="btnChangeCountryLanding">
+                    <span class="flag-sm" id="landingFlagIcon"></span>
+                    <span id="lblChangeCountryLanding">🌐 English</span>
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.6"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+            </div>
+            <p class="tagline" id="taglineText">Ninomiya Co., Ltd. &nbsp;·&nbsp; Select your role to start &nbsp;·&nbsp; <em>⚡ Powered by Groq AI</em></p>
+        </header>
+        <div class="cards-row">
+            <a href="admin.html" class="role-card admin-card">
+                <span class="card-badge">🎙️ Operator</span>
+                <div class="card-icon">🎙️</div>
+                <div class="card-title">Admin Panel</div>
+                <p class="card-desc">Central translation control.<br>Speak in <strong>Japanese</strong> — translations are automatically sent to all workers in real-time.</p>
+                <span class="card-btn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+                    Enter as Admin
+                </span>
+            </a>
+            <a href="client.html" class="role-card worker-card">
+                <span class="card-badge">👷 Worker</span>
+                <div class="card-icon">👷</div>
+                <div class="card-title">Worker Screen</div>
+                <p class="card-desc">Special display for factory workers.<br>Receive translations in <strong>4 languages</strong> + listen to the admin's live voice.</p>
+                <span class="card-btn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                    Enter as Worker
+                </span>
+            </a>
+        </div>
+        <footer class="site-footer">
+            <p>🌸 Ninomiya Co., Ltd. &nbsp;·&nbsp; Live Multi-Language Translator &nbsp;·&nbsp; Copyright by Ihsan Anafi Putra &nbsp;·&nbsp; Japanese Supported</p>
+        </footer>
+    </div>
+
+    <!-- Country Choice Welcome Modal -->
+    <div class="modal-backdrop" id="welcomeCountryModal">
+        <div class="modal-content glass">
+            <div class="hinomaru" style="margin: 0 auto 16px; width: 44px; height: 44px; box-shadow: none;">
+                <span class="kanji" style="font-size: 18px;">通訳</span>
+            </div>
+            <h2 id="modalWelcomeTitle" style="font-size: 22px; font-weight: 800; margin-bottom: 8px; color: #fff;">Choose Your Language</h2>
+            <p id="modalWelcomeDesc" style="font-size: 13px; color: var(--text-soft); margin-bottom: 24px;">Select your language to translate the interface.</p>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 8px;">
+                <!-- Vietnam -->
+                <button class="modal-btn country-btn" data-lang="vi">
+                    <div class="flag-icon-container">
+                        <svg viewBox="0 0 24 24"><rect width="24" height="24" fill="#DA251D"/><polygon points="12,5.5 13.9,11.3 18.8,11.3 14.8,14.2 16.3,20 12,17.1 7.7,20 9.2,14.2 5.2,11.3 10.1,11.3" fill="#FFFF00"/></svg>
+                    </div>
+                    <span style="font-weight: 700; font-size: 13.5px;">Việt Nam</span>
+                </button>
+                
+                <!-- Indonesia -->
+                <button class="modal-btn country-btn" data-lang="id">
+                    <div class="flag-icon-container">
+                        <svg viewBox="0 0 24 24"><rect width="24" height="12" fill="#DA251D"/><rect y="12" width="24" height="12" fill="#FFFFFF"/></svg>
+                    </div>
+                    <span style="font-weight: 700; font-size: 13.5px;">Indonesia</span>
+                </button>
+                
+                <!-- Myanmar -->
+                <button class="modal-btn country-btn" data-lang="my">
+                    <div class="flag-icon-container">
+                        <svg viewBox="0 0 24 24"><rect width="24" height="8" fill="#FECB00"/><rect y="8" width="24" height="8" fill="#34B233"/><rect y="16" width="24" height="8" fill="#EA240A"/><polygon points="12,4 14.35,11.23 21.94,11.23 15.8,15.69 18.15,22.92 12,18.46 5.85,22.92 8.2,15.69 2.06,11.23 9.65,11.23" fill="#FFFFFF"/></svg>
+                    </div>
+                    <span style="font-weight: 700; font-size: 13.5px;">မြန်မာ</span>
+                </button>
+                
+                <!-- Philippines -->
+                <button class="modal-btn country-btn" data-lang="tl">
+                    <div class="flag-icon-container">
+                        <svg viewBox="0 0 24 24"><rect width="24" height="12" fill="#0038A8"/><rect y="12" width="24" height="12" fill="#CE1126"/><polygon points="0,0 11,12 0,24" fill="#FFFFFF"/><circle cx="4.5" cy="12" r="2.2" fill="#FCD116"/><circle cx="4.5" cy="12" r="0.8" fill="#FFFFFF"/><polygon points="4.5,6.5 5,8 6.5,8 5.3,9 5.8,10.5 4.5,9.5 3.2,10.5 3.7,9 2.5,8 4,8" fill="#FCD116"/></svg>
+                    </div>
+                    <span style="font-weight: 700; font-size: 13.5px;">Pilipinas</span>
+                </button>
+                
+                <!-- English -->
+                <button class="modal-btn country-btn" data-lang="en">
+                    <div class="flag-icon-container">
+                        <svg viewBox="0 0 24 24"><rect width="24" height="24" fill="#00247D"/><path d="M0,0 L24,24 M24,0 L0,24" stroke="#FFFFFF" stroke-width="3"/><path d="M0,0 L24,24 M24,0 L0,24" stroke="#CF142B" stroke-width="2"/><path d="M12,0 V24 M0,12 H24" stroke="#FFFFFF" stroke-width="5"/><path d="M12,0 V24 M0,12 H24" stroke="#CF142B" stroke-width="3"/></svg>
+                    </div>
+                    <span style="font-weight: 700; font-size: 13.5px;">English</span>
+                </button>
+
+                <!-- Japanese -->
+                <button class="modal-btn country-btn" data-lang="ja">
+                    <div class="flag-icon-container">
+                        <svg viewBox="0 0 24 24"><rect width="24" height="24" fill="#FFFFFF"/><circle cx="12" cy="12" r="6" fill="#BC002D"/></svg>
+                    </div>
+                    <span style="font-weight: 700; font-size: 13.5px;">日本語</span>
+                </button>
+            </div>
+            <!-- Back / Close button — only visible when not first visit -->
+            <button class="modal-back-btn" id="btnModalBack" style="display:none;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                Back
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const indexTranslations = {
+            en: {
+                title: "Live Translator — Select Role",
+                headerTitle: "Live<span>Translate</span>",
+                headerSub: "Live Translation System — Real-time Multi-language Translation",
+                tagline: "Ninomiya Co., Ltd. &nbsp;·&nbsp; Select your role to start &nbsp;·&nbsp; <em>⚡ Powered by Groq AI</em>",
+                chooseCountry: "Choose Your Country / Language",
+                chooseCountryDesc: "Please select your language to configure the website interface.",
+                changeCountry: "Change Language",
+                adminBadge: "🎙️ Operator",
+                adminTitle: "Admin Panel",
+                adminDesc: "Central translation control.<br>Speak in <strong>Japanese</strong> — translations are automatically sent to all workers in real-time.",
+                adminBtn: "Enter as Admin",
+                workerBadge: "👷 Worker",
+                workerTitle: "Worker Screen",
+                workerDesc: "Special display for factory workers.<br>Receive translations in <strong>4 languages</strong> + listen to the admin's live voice.",
+                workerBtn: "Enter as Worker",
+                footer: "🌸 Ninomiya Co., Ltd. &nbsp;·&nbsp; Live Multi-Language Translator &nbsp;·&nbsp; Copyright by Ihsan Anafi Putra &nbsp;·&nbsp; Japanese Supported"
+            },
+            vi: {
+                title: "Live Translator — Chọn Vai Trò",
+                headerTitle: "Live<span>Translate</span>",
+                headerSub: "Hệ thống dịch trực tiếp — Phiên dịch đa ngôn ngữ theo thời gian thực",
+                tagline: "Ninomiya Co., Ltd. &nbsp;·&nbsp; Chọn vai trò của bạn để bắt đầu &nbsp;·&nbsp; <em>⚡ Hỗ trợ bởi Groq AI</em>",
+                chooseCountry: "Chọn Quốc Gia Của Bạn",
+                chooseCountryDesc: "Vui lòng chọn quốc gia của bạn để cấu hình ngôn ngữ giao diện và bản dịch mặc định.",
+                changeCountry: "Đổi Quốc Gia",
+                adminBadge: "🎙️ Người điều hành",
+                adminTitle: "Trang Quản Trị",
+                adminDesc: "Kiểm soát dịch thuật trung tâm.<br>Nói bằng <strong>tiếng Nhật</strong> — bản dịch sẽ tự động gửi đến toàn bộ công nhân theo thời gian thực.",
+                adminBtn: "Vào trang Quản Trị",
+                workerBadge: "👷 Công nhân",
+                workerTitle: "Màn Hình Công Nhân",
+                workerDesc: "Màn hình dành riêng cho công nhân nhà máy.<br>Nhận bản dịch bằng <strong>4 ngôn ngữ</strong> + nghe âm thanh trực tiếp từ người điều hành.",
+                workerBtn: "Vào trang Công Nhân",
+                footer: "🌸 Ninomiya Co., Ltd. &nbsp;·&nbsp; Live Multi-Language Translator &nbsp;·&nbsp; Bản quyền thuộc về Ihsan Anafi Putra &nbsp;·&nbsp; Hỗ trợ Tiếng Nhật"
+            },
+            id: {
+                title: "Live Translator — Pilih Peran",
+                headerTitle: "Live<span>Translate</span>",
+                headerSub: "Sistem Penerjemah Langsung — Penerjemah Multi-bahasa Real-time",
+                tagline: "Ninomiya Co., Ltd. &nbsp;·&nbsp; Pilih peran Anda untuk memulai &nbsp;·&nbsp; <em>⚡ Didukung Groq AI</em>",
+                chooseCountry: "Pilih Negara Anda",
+                chooseCountryDesc: "Silakan pilih negara Anda untuk mengonfigurasi bahasa tampilan dan terjemahan bawaan.",
+                changeCountry: "Ubah Negara",
+                adminBadge: "🎙️ Operator",
+                adminTitle: "Panel Operator",
+                adminDesc: "Kontrol terjemahan pusat.<br>Berbicara dalam bahasa <strong>Jepang</strong> — terjemahan otomatis dikirim ke seluruh pekerja secara real-time.",
+                adminBtn: "Masuk sebagai Admin",
+                workerBadge: "👷 Pekerja",
+                workerTitle: "Layar Pekerja",
+                workerDesc: "Tampilan khusus untuk pekerja pabrik.<br>Menerima terjemahan dalam <strong>4 bahasa</strong> + mendengar suara langsung operator.",
+                workerBtn: "Masuk sebagai Pekerja",
+                footer: "🌸 Ninomiya Co., Ltd. &nbsp;·&nbsp; Live Multi-Language Translator &nbsp;·&nbsp; Hak Cipta oleh Ihsan Anafi Putra &nbsp;·&nbsp; Mendukung Bahasa Jepang"
+            },
+            my: {
+                title: "Live Translator — ကဏ္ဍရွေးချယ်ပါ",
+                headerTitle: "Live<span>Translate</span>",
+                headerSub: "တိုက်ရိုက်ဘာသာပြန်စနစ် — အချိန်နှင့်တပြေးညီ ဘာသာစကားမျိုးစုံ ဘာသာပြန်ခြင်း",
+                tagline: "Ninomiya Co., Ltd. &nbsp;·&nbsp; စတင်ရန် သင့်ကဏ္ဍကို ရွေးချယ်ပါ &nbsp;·&nbsp; <em>⚡ Groq AI ဖြင့် ပံ့ပိုးသည်</em>",
+                chooseCountry: "သင့်နိုင်ငံကို ရွေးချယ်ပါ",
+                chooseCountryDesc: "ဘာသာစကားနှင့် အသံဆက်တင်များကို သတ်မှတ်ရန် သင့်နိုင်ငံကို ရွေးချယ်ပေးပါ။",
+                changeCountry: "နိုင်ငံပြောင်းရန်",
+                adminBadge: "🎙️ အော်ပရေတာ",
+                adminTitle: "အော်ပရေတာ ကွန်ဆိုးလ်",
+                adminDesc: "ဗဟိုဘာသာပြန်ထိန်းချုပ်မှု။<br><strong>ဂျပန်ဘာသာ</strong>ဖြင့် ပြောပါ — ဘာသာပြန်ချက်များကို အလုပ်သမားအားလုံးထံ အချိန်နှင့်တပြေးညီ အလိုအလျောက် ပေးပို့သည်။",
+                adminBtn: "အော်ပရေတာအဖြစ် ဝင်မည်",
+                workerBadge: "👷 အလုပ်သမား",
+                workerTitle: "အလုပ်သမား မျက်နှာပြင်",
+                workerDesc: "စက်ရုံအလုပ်သမားများအတွက် သီးသန့်မျက်နှာပြင်။<br><strong>ဘာသာစကား ၄ မျိုး</strong>ဖြင့် ဘာသာပြန်ချက်များကို လက်ခံရယူပြီး တိုက်ရိုက်အသံကို နားဆင်ပါ။",
+                workerBtn: "အလုပ်သမားအဖြစ် ဝင်မည်",
+                footer: "🌸 Ninomiya Co., Ltd. &nbsp;·&nbsp; Live Multi-Language Translator &nbsp;·&nbsp; Ihsan Anafi Putra မှ မူပိုင်ခွင့်ရယူထားသည် &nbsp;·&nbsp; ဂျပန်ဘာသာစကား ပံ့ပိုးသည်"
+            },
+            tl: {
+                title: "Live Translator — Pumili ng Role",
+                headerTitle: "Live<span>Translate</span>",
+                headerSub: "Live Translation System — Real-time Multi-language Translation",
+                tagline: "Ninomiya Co., Ltd. &nbsp;·&nbsp; Pumili ng role para magsimula &nbsp;·&nbsp; <em>⚡ Pinapagana ng Groq AI</em>",
+                chooseCountry: "Piliin ang Iyong Bansa",
+                chooseCountryDesc: "Mangyaring piliin ang iyong bansa upang i-configure ang wika ng interface at default na pagsasalin.",
+                changeCountry: "Baguhin ang Bansa",
+                adminBadge: "🎙️ Operator",
+                adminTitle: "Admin Panel",
+                adminDesc: "Sentral na kontrol sa pagsasalin.<br>Magsalita sa <strong>Hapones</strong> — ang mga pagsasalin ay awtomatikong ipinapadala sa lahat ng manggagawa real-time.",
+                adminBtn: "Pumasok bilang Admin",
+                workerBadge: "👷 Manggagawa",
+                workerTitle: "Screen ng Manggagawa",
+                workerDesc: "Espesyal na display para sa mga manggagawa sa pabrika.<br>Tumanggap ng mga pagsasalin sa <strong>4 na wika</strong> + pakinggan ang live na boses ng admin.",
+                workerBtn: "Pumasok bilang Manggagawa",
+                footer: "🌸 Ninomiya Co., Ltd. &nbsp;·&nbsp; Live Multi-Language Translator &nbsp;·&nbsp; Copyright ni Ihsan Anafi Putra &nbsp;·&nbsp; Suportado ang Wikang Hapones"
+            },
+            ja: {
+                title: "ライブ翻訳 — ロール選択",
+                headerTitle: "Live<span>Translate</span>",
+                headerSub: "ライブ翻訳システム — リアルタイム多言語通訳",
+                tagline: "二宮株式会社 &nbsp;·&nbsp; 開始するロールを選択してください &nbsp;·&nbsp; <em>⚡ Groq AI搭載</em>",
+                chooseCountry: "国 / 言語を選択してください",
+                chooseCountryDesc: "表示インターフェースとデフォルト翻訳言語を設定します。",
+                changeCountry: "言語を変更する",
+                adminBadge: "🎙️ オペレーター",
+                adminTitle: "管理者パネル",
+                adminDesc: "中央翻訳管理画面。<br><strong>日本語</strong>で話すと、自動的にすべての労働者へリアルタイムで翻訳が送信されます。",
+                adminBtn: "管理者として入る",
+                workerBadge: "👷 労働者",
+                workerTitle: "労働者画面",
+                workerDesc: "工場労働者向けの専用ディスプレイ。<br><strong>4言語</strong>の翻訳を受信し、管理者の生音声を聞くことができます。",
+                workerBtn: "労働者として入る",
+                footer: "🌸 二宮株式会社 &nbsp;·&nbsp; ライブ多言語翻訳 &nbsp;·&nbsp; Copyright by Ihsan Anafi Putra &nbsp;·&nbsp; 日本語対応"
+            }
+        };
+
+        const modal = document.getElementById('welcomeCountryModal');
+        const btnChange = document.getElementById('btnChangeCountryLanding');
+        const lblChange = document.getElementById('lblChangeCountryLanding');
+
+        function applyUILocalization(lang) {
+            const t = indexTranslations[lang] || indexTranslations['id'];
+            
+            document.title = t.title;
+            
+            // Header texts
+            const logoRow = document.querySelector('.logo-row');
+            if (logoRow) {
+                const titleMain = logoRow.querySelector('.title-main');
+                const titleSub = logoRow.querySelector('.title-sub');
+                if (titleMain) titleMain.innerHTML = t.headerTitle;
+                if (titleSub) titleSub.innerText = t.headerSub;
+            }
+            
+            const tagline = document.querySelector('.tagline');
+            if (tagline) tagline.innerHTML = t.tagline;
+            
+            // Modal texts
+            const modalTitle = document.getElementById('modalWelcomeTitle');
+            const modalDesc = document.getElementById('modalWelcomeDesc');
+            if (modalTitle) modalTitle.innerText = t.chooseCountry;
+            if (modalDesc) modalDesc.innerText = t.chooseCountryDesc;
+            if (lblChange) lblChange.innerText = t.changeCountry;
+
+            // Admin Card texts
+            const adminCard = document.querySelector('.admin-card');
+            if (adminCard) {
+                const badge = adminCard.querySelector('.card-badge');
+                const title = adminCard.querySelector('.card-title');
+                const desc = adminCard.querySelector('.card-desc');
+                const btn = adminCard.querySelector('.card-btn');
+                
+                if (badge) badge.innerText = t.adminBadge;
+                if (title) title.innerText = t.adminTitle;
+                if (desc) desc.innerHTML = t.adminDesc;
+                if (btn) {
+                    btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg> ${t.adminBtn}`;
+                }
+            }
+
+            // Worker Card texts
+            const workerCard = document.querySelector('.worker-card');
+            if (workerCard) {
+                const badge = workerCard.querySelector('.card-badge');
+                const title = workerCard.querySelector('.card-title');
+                const desc = workerCard.querySelector('.card-desc');
+                const btn = workerCard.querySelector('.card-btn');
+                
+                if (badge) badge.innerText = t.workerBadge;
+                if (title) title.innerText = t.workerTitle;
+                if (desc) desc.innerHTML = t.workerDesc;
+                if (btn) {
+                    btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg> ${t.workerBtn}`;
+                }
+            }
+
+            // Footer
+            const footer = document.querySelector('.site-footer p');
+            if (footer) footer.innerHTML = t.footer;
+        }
+
+        // Lang labels for the pill button
+        const langLabels = {
+            en: '🇬🇧 English', vi: '🇻🇳 Việt Nam',
+            id: '🇮🇩 Indonesia', my: '🇲🇲 မြန်မာ', tl: '🇵🇭 Pilipinas',
+            ja: '🇯🇵 日本語'
+        };
+
+        const flags = {
+            vi: `<svg viewBox="0 0 24 24"><rect width="24" height="24" fill="#DA251D"/><polygon points="12,5.5 13.9,11.3 18.8,11.3 14.8,14.2 16.3,20 12,17.1 7.7,20 9.2,14.2 5.2,11.3 10.1,11.3" fill="#FFFF00"/></svg>`,
+            id: `<svg viewBox="0 0 24 24"><rect width="24" height="12" fill="#DA251D"/><rect y="12" width="24" height="12" fill="#FFFFFF"/></svg>`,
+            my: `<svg viewBox="0 0 24 24"><rect width="24" height="8" fill="#FECB00"/><rect y="8" width="24" height="8" fill="#34B233"/><rect y="16" width="24" height="8" fill="#EA240A"/><polygon points="12,4 14.35,11.23 21.94,11.23 15.8,15.69 18.15,22.92 12,18.46 5.85,22.92 8.2,15.69 2.06,11.23 9.65,11.23" fill="#FFFFFF"/></svg>`,
+            tl: `<svg viewBox="0 0 24 24"><rect width="24" height="12" fill="#0038A8"/><rect y="12" width="24" height="12" fill="#CE1126"/><polygon points="0,0 11,12 0,24" fill="#FFFFFF"/><circle cx="4.5" cy="12" r="2.2" fill="#FCD116"/><circle cx="4.5" cy="12" r="0.8" fill="#FFFFFF"/><polygon points="4.5,6.5 5,8 6.5,8 5.3,9 5.8,10.5 4.5,9.5 3.2,10.5 3.7,9 2.5,8 4,8" fill="#FCD116"/></svg>`,
+            en: `<svg viewBox="0 0 24 24"><rect width="24" height="24" fill="#00247D"/><path d="M0,0 L24,24 M24,0 L0,24" stroke="#FFFFFF" stroke-width="3"/><path d="M0,0 L24,24 M24,0 L0,24" stroke="#CF142B" stroke-width="2"/><path d="M12,0 V24 M0,12 H24" stroke="#FFFFFF" stroke-width="5"/><path d="M12,0 V24 M0,12 H24" stroke="#CF142B" stroke-width="3"/></svg>`,
+            ja: `<svg viewBox="0 0 24 24"><rect width="24" height="24" fill="#FFFFFF"/><circle cx="12" cy="12" r="6" fill="#BC002D"/></svg>`
+        };
+
+        function updatePillBtn(lang) {
+            const flagEl = document.getElementById('landingFlagIcon');
+            const lblEl = document.getElementById('lblChangeCountryLanding');
+            if (flagEl) flagEl.innerHTML = flags[lang] || '';
+            if (lblEl) lblEl.textContent = langLabels[lang] || 'English';
+        }
+
+        // Init routine — default to English, never force modal on first visit
+        const savedLang = localStorage.getItem('client_selected_lang') || 'en';
+        const urlParams = new URLSearchParams(window.location.search);
+        const forceChange = urlParams.get('change') === 'true';
+
+        // Apply and update pill on load
+        if (!localStorage.getItem('client_selected_lang')) {
+            localStorage.setItem('client_selected_lang', 'en');
+        }
+        applyUILocalization(savedLang);
+        updatePillBtn(savedLang);
+
+        // Show modal only when explicitly triggered (Back button or pill click)
+        if (forceChange) {
+            modal.classList.add('show');
+            document.getElementById('btnModalBack').style.display = 'flex';
+        }
+
+        // Open modal on pill click — show Back button since it's not first visit
+        btnChange.addEventListener('click', () => {
+            modal.classList.add('show');
+            document.getElementById('btnModalBack').style.display = 'flex';
+        });
+
+        // Back button closes modal without changing lang
+        const btnModalBack = document.getElementById('btnModalBack');
+        if (btnModalBack) {
+            btnModalBack.addEventListener('click', () => {
+                modal.classList.remove('show');
+                if (window.location.search.includes('change=true')) {
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                }
+            });
+        }
+
+        // Click selection handlers
+        document.querySelectorAll('.country-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const lang = btn.getAttribute('data-lang');
+                localStorage.setItem('client_selected_lang', lang);
+                sessionStorage.setItem('country_modal_shown', 'true');
+                
+                applyUILocalization(lang);
+                updatePillBtn(lang);
+                modal.classList.remove('show');
+
+                // If URL contained ?change=true, clean it up
+                if (window.location.search.includes('change=true')) {
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

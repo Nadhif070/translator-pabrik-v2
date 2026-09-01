@@ -1,0 +1,427 @@
+/* VARIABLES */
+:root {
+    --primary-purple: #8a2be2;      /* BlueViolet */
+    --neon-purple: #b026ff;         /* Purple Neon */
+    --glow-neon: rgba(176, 38, 255, 0.8);
+    --dark-cosmic: #0a0514;         /* Sangat gelap bertema kosmik */
+    --glass-bg: rgba(12, 6, 24, 0.8);
+    --neon-cyan: #00f0ff;
+    --neon-pink: #ff007f;
+}
+
+/* RESET & LAYOUT */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Outfit', sans-serif;
+}
+
+body {
+    width: 1920px;
+    height: 1080px;
+    background: transparent; /* Transparan untuk OBS */
+    overflow: hidden;
+}
+
+.overlay-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+/* ==========================================================================
+   FLOATING NEON PANELS
+   ========================================================================== */
+.floating-panels {
+    position: absolute;
+    bottom: 175px; /* Berada tepat di atas banner setinggi 160px + jeda */
+    left: 360px;   /* Mulai setelah area karakter kiri */
+    width: calc(100% - 720px); /* Batasi lebar hanya di area tengah */
+    display: flex;
+    justify-content: space-between;
+    padding: 0 20px;
+    z-index: 10;
+    pointer-events: none; /* Tidak menghalangi interaksi */
+}
+
+/* Glassmorphism Panel */
+.info-panel {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1.5px solid rgba(138, 43, 226, 0.4);
+    border-radius: 8px;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    height: 48px;
+    position: relative;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37),
+                0 0 15px rgba(138, 43, 226, 0.25);
+    transition: all 0.5s ease;
+}
+
+/* Neon Glow Classes */
+.glow-purple {
+    border-color: rgba(176, 38, 255, 0.5);
+    box-shadow: 0 0 15px rgba(176, 38, 255, 0.3),
+                inset 0 0 10px rgba(176, 38, 255, 0.1);
+}
+
+/* Indicator Pulse untuk Live Status */
+.pulse-indicator {
+    width: 8px;
+    height: 8px;
+    background-color: #ff3333;
+    border-radius: 50%;
+    box-shadow: 0 0 8px #ff3333;
+    animation: indicatorPulse 1.5s infinite;
+}
+
+@keyframes indicatorPulse {
+    0% { transform: scale(1); opacity: 1; box-shadow: 0 0 0 0 rgba(255, 51, 51, 0.7); }
+    70% { transform: scale(1.3); opacity: 0.8; box-shadow: 0 0 0 6px rgba(255, 51, 51, 0); }
+    100% { transform: scale(1); opacity: 1; box-shadow: 0 0 0 0 rgba(255, 51, 51, 0); }
+}
+
+.panel-label {
+    font-size: 11px;
+    font-weight: 800;
+    color: rgba(255, 255, 255, 0.5);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.panel-value {
+    font-size: 15px;
+    font-weight: 600;
+    color: #ffffff;
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+}
+
+.panel-icon {
+    width: 18px;
+    height: 18px;
+    color: var(--neon-purple);
+    filter: drop-shadow(0 0 5px var(--neon-purple));
+    animation: floatIcon 3s ease-in-out infinite;
+}
+
+/* SOCIAL MEDIA ROTATOR */
+.social-panel {
+    width: 320px;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.social-item {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), 
+                transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    width: 100%;
+}
+
+.social-item.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.social-icon {
+    width: 20px;
+    height: 20px;
+}
+
+.social-text {
+    font-size: 15px;
+    font-weight: 600;
+    color: #ffffff;
+    letter-spacing: 0.5px;
+}
+
+/* Brand Specific Glows */
+.icon-ig {
+    color: #f77737;
+    filter: drop-shadow(0 0 8px #f77737);
+}
+.icon-yt {
+    color: #ff0000;
+    filter: drop-shadow(0 0 8px #ff0000);
+}
+.icon-tt {
+    color: var(--neon-cyan);
+    filter: drop-shadow(0 0 8px var(--neon-cyan))
+            drop-shadow(1px 1px 0px var(--neon-pink))
+            drop-shadow(-1px -1px 0px var(--neon-cyan));
+}
+
+
+/* ==========================================================================
+   MAIN HUD BANNER
+   ========================================================================== */
+.main-hud-banner {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 160px; /* Banner horizontal bawah */
+    background: linear-gradient(180deg, rgba(10, 5, 20, 0.95) 0%, rgba(5, 2, 10, 0.98) 100%);
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: flex-end;
+    overflow: visible; /* Penting agar karakter bisa pop-out ke atas */
+    border-top: 1px solid rgba(138, 43, 226, 0.2);
+}
+
+/* Background Cosmic Nebula (Mengalir Lambat) */
+.nebula-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 200%;
+    height: 100%;
+    background-image: radial-gradient(circle at 20% 50%, rgba(138, 43, 226, 0.2) 0%, transparent 40%),
+                      radial-gradient(circle at 80% 50%, rgba(176, 38, 255, 0.15) 0%, transparent 45%),
+                      linear-gradient(90deg, rgba(10, 5, 20, 0.3) 0%, rgba(20, 10, 35, 0.5) 50%, rgba(10, 5, 20, 0.3) 100%);
+    z-index: 1;
+    animation: scrollBg 20s linear infinite;
+    opacity: 0.8;
+}
+
+@keyframes scrollBg {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+
+/* Grid Efek Horizontal / Cyberpunk (Poizystore Grid Style) */
+.hud-grid {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    background-image: 
+        linear-gradient(rgba(138, 43, 226, 0.12) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(138, 43, 226, 0.12) 1px, transparent 1px);
+    background-size: 32px 16px; /* Ukuran kotak grid horizontal */
+    background-position: center;
+    opacity: 0.95;
+    pointer-events: none;
+}
+
+/* Animasi Garis Horizontal Bergerak (Scanline Scanner) */
+.hud-grid::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(180deg, 
+        transparent 0%, 
+        rgba(176, 38, 255, 0.12) 40%, 
+        rgba(0, 240, 255, 0.18) 50%, 
+        rgba(176, 38, 255, 0.12) 60%, 
+        transparent 100%
+    );
+    background-size: 100% 200px;
+    animation: scanLine 6s linear infinite;
+    opacity: 0.7;
+}
+
+@keyframes scanLine {
+    0% { background-position: 0 -200px; }
+    100% { background-position: 0 200px; }
+}
+
+/* Glowing Border atas-bawah */
+.hud-border {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    z-index: 5;
+    background: linear-gradient(90deg, 
+        transparent 5%, 
+        var(--neon-purple) 25%, 
+        var(--neon-cyan) 50%, 
+        var(--neon-purple) 75%, 
+        transparent 95%
+    );
+    box-shadow: 0 0 15px var(--glow-neon),
+                0 0 30px rgba(0, 240, 255, 0.3);
+}
+
+.border-top {
+    top: 0;
+    animation: shimmerBorder 6s linear infinite;
+}
+
+.border-bottom {
+    bottom: 0;
+}
+
+@keyframes shimmerBorder {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
+}
+
+
+/* ==========================================================================
+   CHARACTER POP-OUT WRAPPERS
+   ========================================================================== */
+.character-wrapper {
+    position: absolute;
+    bottom: 0;
+    z-index: 4;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.left-side {
+    left: 20px;
+    width: 600px; /* Melebarkan kotak agar aksi pertarungan meluas ke tengah */
+    height: 156px; /* Sama dengan tinggi banner dikurangi border, terpotong di dalam */
+    overflow: hidden; /* Karakter kiri tetap di dalam kotak banner */
+    animation: floatLeft 4s ease-in-out infinite;
+}
+
+.right-side {
+    right: 20px;
+    width: 360px;
+    height: 320px; /* Karakter kanan dibuat jauh lebih besar dan pop-out */
+    z-index: 6; /* Tampil di atas border */
+    animation: floatRight 4.5s ease-in-out infinite;
+}
+
+/* Efek Floating Mengambang Halus */
+@keyframes floatLeft {
+    0% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-3px) rotate(-0.5deg); }
+    100% { transform: translateY(0px) rotate(0deg); }
+}
+
+@keyframes floatRight {
+    0% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-10px) rotate(1deg); }
+    100% { transform: translateY(0px) rotate(0deg); }
+}
+
+/* Aura Cahaya di belakang karakter */
+.character-aura {
+    position: absolute;
+    width: 250px;
+    height: 250px;
+    border-radius: 50%;
+    bottom: -20px;
+    z-index: -1;
+    filter: blur(35px);
+    opacity: 0.6;
+    animation: auraPulse 3s ease-in-out infinite;
+}
+
+.aura-left {
+    background: radial-gradient(circle, rgba(138, 43, 226, 0.6) 0%, transparent 70%);
+}
+
+.aura-right {
+    background: radial-gradient(circle, rgba(176, 38, 255, 0.65) 0%, transparent 70%);
+}
+
+@keyframes auraPulse {
+    0% { transform: scale(0.9); opacity: 0.5; }
+    50% { transform: scale(1.1); opacity: 0.8; }
+    100% { transform: scale(0.9); opacity: 0.5; }
+}
+
+/* Gambar Karakter */
+.character-img {
+    height: 100%;
+    width: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 0 15px rgba(138, 43, 226, 0.45));
+    transition: filter 0.3s ease;
+}
+
+/* Glow tambahan untuk mata & rambut */
+.img-left {
+    height: 240% !important; /* Ukuran besar namun seimbang agar wajah terlihat */
+    object-position: top left; /* Sejajarkan bagian atas gambar agar kepala tidak terpotong */
+    transform: translateY(-10px) translateX(60px);  /* Geser sedikit ke atas dan ke kanan menuju tengah */
+    animation: characterGlow 4s ease-in-out infinite;
+}
+
+.img-right {
+    animation: characterGlow 4.5s ease-in-out infinite alternate;
+}
+
+@keyframes characterGlow {
+    0% { filter: drop-shadow(0 0 12px rgba(176, 38, 255, 0.4)) contrast(1); }
+    50% { filter: drop-shadow(0 0 25px rgba(176, 38, 255, 0.7)) contrast(1.05); }
+    100% { filter: drop-shadow(0 0 12px rgba(176, 38, 255, 0.4)) contrast(1); }
+}
+
+
+/* ==========================================================================
+   AREA TENGAH: COSMIC CLASH AREA
+   ========================================================================== */
+.clash-area {
+    position: absolute;
+    left: 360px;
+    right: 360px;
+    top: 0;
+    height: 100%;
+    z-index: 2;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#clash-canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+/* Portal Celah Kosmik di bagian tengah canvas */
+.cosmic-rift {
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    background: radial-gradient(circle, #ffffff 0%, var(--neon-purple) 30%, transparent 70%);
+    border-radius: 50%;
+    filter: blur(6px);
+    z-index: 3;
+    animation: riftPulse 2s ease-in-out infinite;
+    mix-blend-mode: screen;
+    pointer-events: none;
+    box-shadow: 0 0 30px var(--neon-purple),
+                0 0 60px rgba(0, 240, 255, 0.4);
+}
+
+@keyframes riftPulse {
+    0% { transform: scale(0.85); opacity: 0.7; }
+    50% { transform: scale(1.15); opacity: 1; filter: blur(4px); }
+    100% { transform: scale(0.85); opacity: 0.7; }
+}
+
+
+/* ==========================================================================
+   ANOTHER HELPER MICRO-ANIMATION
+   ========================================================================== */
+@keyframes floatIcon {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-4px); }
+    100% { transform: translateY(0px); }
+}

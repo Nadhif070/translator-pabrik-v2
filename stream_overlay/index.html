@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animated Cosmic Stream Overlay</title>
+    <!-- Import Google Font Outfit untuk tampilan premium & modern -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="overlay-container">
+        
+        <!-- FLOATING NEON PANELS (Berada di atas banner utama) -->
+        <div class="floating-panels">
+            <!-- Left Info Panel: Live Status -->
+            <div class="info-panel status-panel glow-purple">
+                <span class="pulse-indicator"></span>
+                <span class="panel-label">LIVE STATUS</span>
+                <span class="panel-value" id="stream-status">ONLINE</span>
+            </div>
+
+            <!-- Middle Panel: Social Media Rotator -->
+            <div class="info-panel social-panel glow-purple" id="social-rotator">
+                <div class="social-item active" id="social-ig">
+                    <svg class="social-icon icon-ig" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                        <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                        <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                    </svg>
+                    <span class="social-text">@username_ig</span>
+                </div>
+                <div class="social-item" id="social-yt">
+                    <svg class="social-icon icon-yt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"></path>
+                        <polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"></polygon>
+                    </svg>
+                    <span class="social-text">NamaChannelYT</span>
+                </div>
+                <div class="social-item" id="social-tt">
+                    <svg class="social-icon icon-tt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"></path>
+                    </svg>
+                    <span class="social-text">@username_tiktok</span>
+                </div>
+            </div>
+
+            <!-- Right Info Panel: Latest Follower -->
+            <div class="info-panel follower-panel glow-purple">
+                <svg class="panel-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                </svg>
+                <span class="panel-label">NEW FOLLOWER</span>
+                <span class="panel-value" id="latest-follower">Sultan_Gaming</span>
+            </div>
+        </div>
+
+        <!-- MAIN OVERLAY HUD BANNER (Horizontal bawah) -->
+        <div class="main-hud-banner">
+            <!-- Background Nebula Kosmik (CSS keyframes) -->
+            <div class="nebula-bg"></div>
+            
+            <!-- Grid Efek Horizontal/Cyberpunk -->
+            <div class="hud-grid"></div>
+            
+            <!-- Border Sihir Atas dan Bawah dengan Efek Glow Listrik -->
+            <div class="hud-border border-top"></div>
+            <div class="hud-border border-bottom"></div>
+
+            <!-- SISI KIRI: Karakter Merapal Sihir -->
+            <div class="character-wrapper left-side">
+                <div class="character-aura aura-left"></div>
+                <img src="assets/character_left.png?v=3" alt="Character Left" class="character-img img-left">
+            </div>
+
+            <!-- AREA TENGAH: Canvas Pertempuran Energi (Cosmic Clash) -->
+            <div class="clash-area">
+                <canvas id="clash-canvas"></canvas>
+                <div class="cosmic-rift"></div>
+            </div>
+
+            <!-- SISI KANAN: Karakter Menahan Sihir -->
+            <div class="character-wrapper right-side">
+                <div class="character-aura aura-right"></div>
+                <img src="assets/character_right.png?v=3" alt="Character Right" class="character-img img-right">
+            </div>
+
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
